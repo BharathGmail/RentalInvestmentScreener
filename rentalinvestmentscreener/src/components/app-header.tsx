@@ -1,11 +1,9 @@
 import Link from "next/link";
 
 const navigationItems = [
-  "Match",
-  "Profile",
-  "Recommendations",
-  "Compliance",
-  "Data",
+  { href: "#search", label: "Search" },
+  { href: "#results", label: "Results" },
+  { href: "#details", label: "Details" },
 ];
 
 export function AppHeader() {
@@ -26,11 +24,11 @@ export function AppHeader() {
         <nav aria-label="Primary navigation" className="flex flex-wrap gap-2">
           {navigationItems.map((item) => (
             <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
+              key={item.href}
+              href={item.href}
               className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
             >
-              {item}
+              {item.label}
             </a>
           ))}
         </nav>

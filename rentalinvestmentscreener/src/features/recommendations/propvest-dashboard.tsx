@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MetricCard } from "@/components/metric-card";
 import { ValueTrendChart } from "@/components/value-trend-chart";
 import { propertyCandidates } from "@/features/screening/property-candidates";
 import {
@@ -51,9 +50,9 @@ const complianceStyles: Record<ComplianceStatus, string> = {
 };
 
 const scoreStyles = {
-  high: "text-emerald-700",
-  low: "text-rose-700",
-  medium: "text-amber-700",
+  high: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  low: "bg-rose-50 text-rose-700 ring-rose-200",
+  medium: "bg-amber-50 text-amber-700 ring-amber-200",
 };
 
 export function PropVestDashboard() {
@@ -100,141 +99,78 @@ export function PropVestDashboard() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-5 px-4 py-5 sm:px-6 lg:py-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-5 sm:px-6 lg:py-6">
       <HeroMasthead />
 
-      <section className="grid min-h-[34rem] gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
-        <aside className="flex flex-col gap-4" id="profile">
-          <SearchScopePanel
-            applySearch={applySearch}
-            hasSearched={hasSearched}
-            radius={radius}
-            resultCount={filteredRecommendations.length}
-            setRadius={setRadius}
-            setZipCode={setZipCode}
-            zipCode={zipCode}
-          />
-          <InvestorProfilePanel
-            profile={profile}
-            updateProfile={updateProfile}
-          />
-        </aside>
+      <SearchAndProfilePanel
+        applySearch={applySearch}
+        hasSearched={hasSearched}
+        profile={profile}
+        radius={radius}
+        resultCount={filteredRecommendations.length}
+        setRadius={setRadius}
+        setZipCode={setZipCode}
+        updateProfile={updateProfile}
+        zipCode={zipCode}
+      />
 
-        <div className="flex min-w-0 flex-col gap-5">
-          <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_23rem]">
+      <SummaryStrip
+        averageMatchScore={summary.averageMatchScore}
+        blockedCount={summary.blockedCount}
+        eligibleCount={summary.eligibleCount}
+        topRecommendation={summary.topRecommendation}
+        totalResults={filteredRecommendations.length}
+      />
+
+      <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <section
+          className="min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm"
+          data-refresh-scope="results-workspace"
+          id="results"
+        >
+          <div className="flex flex-col gap-3 border-b border-zinc-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
-              <div
-                aria-label="Recommendation metrics"
-                className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-                data-refresh-scope="recommendation-kpis"
-              >
-                <MetricCard
-                  description="Average investor-fit score for the current result set."
-                  label="Match score"
-                  tone={getScoreTone(summary.averageMatchScore)}
-                  value={`${Math.round(summary.averageMatchScore)}`}
-                />
-                <MetricCard
-                  description="Properties with the cleanest prototype STR compliance signal."
-                  label="Eligible signals"
-                  tone="positive"
-                  trend={`${summary.reviewCount} review / ${summary.blockedCount} blocked`}
-                  value={summary.eligibleCount.toString()}
-                />
-                <MetricCard
-                  description="Best projected total return after investor-fit scoring."
-                  label="Top return"
-                  tone="accent"
-                  value={formatPercent(
-                    summary.topRecommendation?.totalAnnualReturn ?? 0,
-                  )}
-                />
-                <MetricCard
-                  description="Budget shortfall for the current top recommendation."
-                  label="Capital gap"
-                  tone={
-                    (summary.topRecommendation?.capitalGap ?? 0) > 0
-                      ? "negative"
-                      : "positive"
-                  }
-                  value={formatCurrency(
-                    summary.topRecommendation?.capitalGap ?? 0,
-                  )}
-                />
-              </div>
+              <h2 className="text-xl font-semibold tracking-normal text-zinc-950">
+                Recommended properties
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-zinc-600">
+                {hasSearched
+                  ? `Showing ${filteredRecommendations.length} properties within ${radius}${
+                      appliedZipCode ? ` of ${appliedZipCode}` : ""
+                    }.`
+                  : "Review all San Francisco candidates or narrow by ZIP."}
+              </p>
             </div>
+            <ViewTabs activeView={activeView} setActiveView={setActiveView} />
+          </div>
 
-            <aside
-              aria-live="polite"
-              className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
-              data-refresh-scope="top-recommendation"
-              id="match"
-            >
-              {summary.topRecommendation ? (
-                <TopRecommendation property={summary.topRecommendation} />
-              ) : (
-                <EmptyState title="No matching properties for this ZIP." />
-              )}
-            </aside>
-          </section>
-
-          <section
-            className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm"
-            data-refresh-scope="results-workspace"
-            id="recommendations"
-          >
-            <div className="flex flex-col gap-3 border-b border-zinc-200 px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-xl font-semibold tracking-normal text-zinc-950">
-                  San Francisco recommendations
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-zinc-600">
-                  {hasSearched
-                    ? `Showing ${filteredRecommendations.length} properties within ${radius}${
-                        appliedZipCode ? ` of ${appliedZipCode}` : ""
-                      }.`
-                    : "Use the search rail to focus by ZIP, or review all San Francisco candidates."}
-                </p>
-              </div>
-              <ViewTabs activeView={activeView} setActiveView={setActiveView} />
-            </div>
-
-            {activeView === "list" ? (
-              <ListView
-                recommendations={filteredRecommendations}
-                selectedPropertyId={selectedProperty?.id}
-                selectProperty={setSelectedPropertyId}
-              />
-            ) : (
-              <MapView
-                recommendations={filteredRecommendations}
-                selectedPropertyId={selectedProperty?.id}
-                selectProperty={setSelectedPropertyId}
-              />
-            )}
-          </section>
-
-          <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_23rem]">
-            <RecommendationTable
+          {activeView === "list" ? (
+            <RecommendationList
               recommendations={filteredRecommendations}
               selectedPropertyId={selectedProperty?.id}
               selectProperty={setSelectedPropertyId}
             />
+          ) : (
+            <MapView
+              recommendations={filteredRecommendations}
+              selectedPropertyId={selectedProperty?.id}
+              selectProperty={setSelectedPropertyId}
+            />
+          )}
+        </section>
 
-            <aside
-              aria-live="polite"
-              className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
-              data-refresh-scope="selected-property-detail"
-              id="compliance"
-            >
-              {selectedProperty ? (
-                <SelectedPropertyDetail property={selectedProperty} />
-              ) : (
-                <EmptyState title="Select a property" />
-              )}
-            </aside>
-          </section>
-        </div>
+        <aside
+          aria-live="polite"
+          className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
+          data-refresh-scope="selected-property-detail"
+          id="details"
+        >
+          {selectedProperty ? (
+            <SelectedPropertyDetail property={selectedProperty} />
+          ) : (
+            <EmptyState title="No matching properties. Clear the ZIP filter to see all candidates." />
+          )}
+        </aside>
       </section>
 
       <section
@@ -242,19 +178,19 @@ export function PropVestDashboard() {
         id="data"
       >
         <ObjectiveCard
-          body="The model starts with San Francisco-only candidate data and keeps the market fixed in the investor profile."
+          body="San Francisco-only candidate data keeps the launch scope focused."
           title="Market focus"
         />
         <ObjectiveCard
-          body="Each property carries revenue, cost, financing, appreciation, and capital requirement inputs."
+          body="Revenue, cost, capital, and appreciation inputs drive the score."
           title="Financial engine"
         />
         <ObjectiveCard
-          body="Compliance scoring flags primary-residence, registration, HOA, and unhosted-night diligence."
+          body="Registration, HOA, and unhosted-night risks are visible early."
           title="Regulatory layer"
         />
         <ObjectiveCard
-          body="Profile changes recompute recommendations through React state without a full browser refresh."
+          body="Search and profile changes update scoped sections only."
           title="Scoped updates"
         />
       </section>
@@ -269,127 +205,86 @@ function HeroMasthead() {
       id="search"
     >
       <div
-        className="absolute inset-0 bg-cover bg-top opacity-65"
+        className="absolute inset-0 bg-cover bg-top opacity-25"
         style={{
           backgroundImage: "url('/sf-property-search-wireframe.png')",
         }}
       />
-      <div className="absolute inset-0 bg-zinc-950/55" />
-      <div className="relative flex min-h-44 flex-col justify-end px-5 py-6 text-white sm:min-h-52 sm:px-8">
-        <p className="text-sm font-semibold uppercase tracking-normal text-white/75">
-          San Francisco property search
+      <div className="absolute inset-0 bg-zinc-950/65" />
+      <div className="relative px-5 py-6 text-white sm:px-7">
+        <p className="text-sm font-semibold uppercase tracking-normal text-white/70">
+          PropVest AI | San Francisco
         </p>
         <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-normal sm:text-4xl">
-          Find the right property for your capital, risk, and compliance path.
+          A cleaner way to evaluate SF investment properties.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">
-          A focused recommendation workspace inspired by the wireframe: simple
-          filters, list/map exploration, property cards, and neighborhood
-          intelligence in one view.
+          Search, tune your investor profile, compare recommendations, and
+          inspect compliance risk without leaving the page.
         </p>
       </div>
     </section>
   );
 }
 
-function SearchScopePanel({
+function SearchAndProfilePanel({
   applySearch,
   hasSearched,
+  profile,
   radius,
   resultCount,
   setRadius,
   setZipCode,
+  updateProfile,
   zipCode,
 }: {
   applySearch: () => void;
   hasSearched: boolean;
+  profile: InvestorProfile;
   radius: string;
   resultCount: number;
   setRadius: (radius: string) => void;
   setZipCode: (zipCode: string) => void;
+  updateProfile: (partialProfile: Partial<InvestorProfile>) => void;
   zipCode: string;
 }) {
   return (
     <section
       className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
-      data-refresh-scope="search-filters"
+      data-refresh-scope="search-profile-controls"
+      id="profile"
     >
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-        Search filters
-      </h2>
-      <div className="mt-4 space-y-4">
-        <label className="block">
-          <span className="text-sm font-medium text-zinc-700">ZIP code</span>
-          <input
-            className="mt-2 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            inputMode="numeric"
-            maxLength={5}
-            onChange={(event) =>
-              setZipCode(event.target.value.replace(/\D/g, ""))
-            }
-            placeholder="e.g. 94114"
-            type="text"
-            value={zipCode}
-          />
-        </label>
-
-        <label className="block">
-          <span className="text-sm font-medium text-zinc-700">
-            Search radius
-          </span>
-          <select
-            className="mt-2 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
-            onChange={(event) => setRadius(event.target.value)}
-            value={radius}
-          >
-            {radiusOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <button
-          className="w-full rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
-          onClick={applySearch}
-          type="button"
-        >
-          Search
-        </button>
-
-        <p className="text-xs leading-5 text-zinc-500">
+      <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h2 className="text-lg font-semibold tracking-normal text-zinc-950">
+            Search and investor fit
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-zinc-600">
+            Keep the inputs light. The ranking updates instantly as assumptions
+            change.
+          </p>
+        </div>
+        <p className="text-sm font-medium text-zinc-500">
           {hasSearched
-            ? `Showing ${resultCount} matching properties.`
-            : "Start with a ZIP, or leave blank for all San Francisco."}
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function InvestorProfilePanel({
-  profile,
-  updateProfile,
-}: {
-  profile: InvestorProfile;
-  updateProfile: (partialProfile: Partial<InvestorProfile>) => void;
-}) {
-  return (
-    <section
-      className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
-      data-refresh-scope="investor-profile-controls"
-    >
-      <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-          Investor profile
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-zinc-600">
-          Target market is fixed to San Francisco.
+            ? `${resultCount} matching properties`
+            : "All San Francisco candidates"}
         </p>
       </div>
 
-      <div className="mt-5 space-y-5">
+      <div className="mt-5 grid gap-4 md:grid-cols-4">
+        <TextField
+          label="ZIP code"
+          maxLength={5}
+          onChange={(value) => setZipCode(value.replace(/\D/g, ""))}
+          placeholder="e.g. 94114"
+          value={zipCode}
+        />
+        <SelectField
+          label="Search radius"
+          options={radiusOptions}
+          value={radius}
+          updateValue={setRadius}
+        />
         <NumberField
           label="Available capital"
           min={0}
@@ -398,33 +293,28 @@ function InvestorProfilePanel({
           updateValue={(value) => updateProfile({ availableCapital: value })}
         />
         <NumberField
-          label="Down payment budget"
+          label="Down payment"
           min={0}
           step={25000}
           value={profile.downPaymentBudget}
           updateValue={(value) => updateProfile({ downPaymentBudget: value })}
         />
-        <NumberField
-          label="Time horizon"
-          min={1}
-          step={1}
-          suffix="years"
-          value={profile.timeHorizonYears}
-          updateValue={(value) => updateProfile({ timeHorizonYears: value })}
-        />
-        <SegmentedControl
-          label="Investment goal"
+      </div>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_1fr_1fr_auto] md:items-end">
+        <SelectField
+          label="Goal"
           options={investmentGoals}
           value={profile.investmentGoal}
           updateValue={(value) => updateProfile({ investmentGoal: value })}
         />
-        <SegmentedControl
-          label="Risk tolerance"
+        <SelectField
+          label="Risk"
           options={riskTolerances}
           value={profile.riskTolerance}
           updateValue={(value) => updateProfile({ riskTolerance: value })}
         />
-        <SegmentedControl
+        <SelectField
           label="Property type"
           options={propertyTypes}
           value={profile.preferredPropertyType}
@@ -432,15 +322,52 @@ function InvestorProfilePanel({
             updateProfile({ preferredPropertyType: value })
           }
         />
-        <BinaryToggle
-          falseLabel="No"
-          label="Primary residence plan"
-          trueLabel="Yes"
-          updateValue={(value) => updateProfile({ plansPrimaryResidence: value })}
-          value={profile.plansPrimaryResidence}
+        <SelectField
+          label="Primary residence"
+          options={["Yes", "No"]}
+          value={profile.plansPrimaryResidence ? "Yes" : "No"}
+          updateValue={(value) =>
+            updateProfile({ plansPrimaryResidence: value === "Yes" })
+          }
         />
+        <button
+          className="rounded-md bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+          onClick={applySearch}
+          type="button"
+        >
+          Search
+        </button>
       </div>
     </section>
+  );
+}
+
+function TextField({
+  label,
+  maxLength,
+  onChange,
+  placeholder,
+  value,
+}: {
+  label: string;
+  maxLength?: number;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  value: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium text-zinc-700">{label}</span>
+      <input
+        className="mt-2 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+        inputMode="numeric"
+        maxLength={maxLength}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        type="text"
+        value={value}
+      />
+    </label>
   );
 }
 
@@ -448,112 +375,129 @@ function NumberField({
   label,
   min,
   step,
-  suffix,
   updateValue,
   value,
 }: {
   label: string;
   min: number;
   step: number;
-  suffix?: string;
   updateValue: (value: number) => void;
   value: number;
 }) {
   return (
     <label className="block">
       <span className="text-sm font-medium text-zinc-700">{label}</span>
-      <div className="mt-2 flex items-center rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100">
-        <input
-          className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-zinc-950 outline-none"
-          min={min}
-          onChange={(event) => updateValue(Number(event.target.value))}
-          step={step}
-          type="number"
-          value={value}
-        />
-        {suffix ? (
-          <span className="ml-2 text-sm text-zinc-500">{suffix}</span>
-        ) : null}
-      </div>
+      <input
+        className="mt-2 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+        min={min}
+        onChange={(event) => updateValue(Number(event.target.value))}
+        step={step}
+        type="number"
+        value={value}
+      />
     </label>
   );
 }
 
-function SegmentedControl<T extends string>({
+function SelectField<T extends string>({
   label,
   options,
   updateValue,
   value,
 }: {
   label: string;
-  options: T[];
+  options: readonly T[];
   updateValue: (value: T) => void;
   value: T;
 }) {
   return (
-    <div>
-      <p className="text-sm font-medium text-zinc-700">{label}</p>
-      <div className="mt-2 grid gap-2 rounded-md bg-zinc-100 p-1">
-        {options.map((option) => {
-          const isSelected = option === value;
-
-          return (
-            <button
-              className={`rounded-md px-3 py-2 text-left text-sm font-semibold transition ${
-                isSelected
-                  ? "bg-white text-zinc-950 shadow-sm"
-                  : "text-zinc-600 hover:text-zinc-950"
-              }`}
-              key={option}
-              onClick={() => updateValue(option)}
-              type="button"
-            >
-              {option}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <label className="block">
+      <span className="text-sm font-medium text-zinc-700">{label}</span>
+      <select
+        className="mt-2 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-950 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+        onChange={(event) => updateValue(event.target.value as T)}
+        value={value}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
-function BinaryToggle({
-  falseLabel,
-  label,
-  trueLabel,
-  updateValue,
-  value,
+function SummaryStrip({
+  averageMatchScore,
+  blockedCount,
+  eligibleCount,
+  topRecommendation,
+  totalResults,
 }: {
-  falseLabel: string;
-  label: string;
-  trueLabel: string;
-  updateValue: (value: boolean) => void;
-  value: boolean;
+  averageMatchScore: number;
+  blockedCount: number;
+  eligibleCount: number;
+  topRecommendation?: RecommendedProperty;
+  totalResults: number;
 }) {
   return (
-    <div>
-      <p className="text-sm font-medium text-zinc-700">{label}</p>
-      <div className="mt-2 grid grid-cols-2 gap-2 rounded-md bg-zinc-100 p-1">
-        {[true, false].map((option) => {
-          const isSelected = value === option;
+    <section
+      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+      data-refresh-scope="recommendation-kpis"
+    >
+      <SummaryItem
+        label="Average match"
+        tone={getScoreTone(averageMatchScore)}
+        value={`${Math.round(averageMatchScore)}`}
+      />
+      <SummaryItem
+        label="Top property"
+        value={topRecommendation?.name ?? "None"}
+      />
+      <SummaryItem
+        label="Eligible"
+        tone="positive"
+        value={`${eligibleCount} of ${totalResults}`}
+      />
+      <SummaryItem
+        label="Blocked"
+        tone={blockedCount > 0 ? "negative" : "neutral"}
+        value={blockedCount.toString()}
+      />
+    </section>
+  );
+}
 
-          return (
-            <button
-              className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
-                isSelected
-                  ? "bg-white text-zinc-950 shadow-sm"
-                  : "text-zinc-600 hover:text-zinc-950"
-              }`}
-              key={option ? "true" : "false"}
-              onClick={() => updateValue(option)}
-              type="button"
-            >
-              {option ? trueLabel : falseLabel}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+function SummaryItem({
+  label,
+  tone = "neutral",
+  value,
+}: {
+  label: string;
+  tone?: "neutral" | "positive" | "negative" | "accent";
+  value: string;
+}) {
+  const toneClass =
+    tone === "positive"
+      ? "text-emerald-700"
+      : tone === "negative"
+        ? "text-rose-700"
+        : tone === "accent"
+          ? "text-sky-700"
+          : "text-zinc-950";
+
+  return (
+    <article className="rounded-lg border border-zinc-200 bg-white px-4 py-3 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-normal text-zinc-500">
+        {label}
+      </p>
+      <p
+        className={`mt-2 break-words text-xl font-semibold tracking-normal sm:text-2xl ${toneClass}`}
+      >
+        {value}
+      </p>
+    </article>
   );
 }
 
@@ -565,7 +509,7 @@ function ViewTabs({
   setActiveView: (view: ActiveView) => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-1 rounded-md bg-zinc-100 p-1">
+    <div className="grid w-full grid-cols-2 gap-1 rounded-md bg-zinc-100 p-1 sm:w-auto">
       {(["list", "map"] as ActiveView[]).map((view) => {
         const isActive = activeView === view;
 
@@ -580,7 +524,7 @@ function ViewTabs({
             onClick={() => setActiveView(view)}
             type="button"
           >
-            {view} view
+            {view}
           </button>
         );
       })}
@@ -588,7 +532,7 @@ function ViewTabs({
   );
 }
 
-function ListView({
+function RecommendationList({
   recommendations,
   selectedPropertyId,
   selectProperty,
@@ -606,9 +550,9 @@ function ListView({
   }
 
   return (
-    <div className="grid gap-4 p-5 xl:grid-cols-3">
-      {recommendations.slice(0, 3).map((property) => (
-        <RecommendationCard
+    <div className="divide-y divide-zinc-100">
+      {recommendations.map((property) => (
+        <RecommendationRow
           isSelected={property.id === selectedPropertyId}
           key={property.id}
           property={property}
@@ -616,6 +560,59 @@ function ListView({
         />
       ))}
     </div>
+  );
+}
+
+function RecommendationRow({
+  isSelected,
+  property,
+  selectProperty,
+}: {
+  isSelected: boolean;
+  property: RecommendedProperty;
+  selectProperty: (propertyId: string) => void;
+}) {
+  return (
+    <button
+      className={`grid w-full gap-4 px-5 py-4 text-left transition hover:bg-zinc-50 md:grid-cols-[3rem_minmax(0,1fr)_auto] md:items-center ${
+        isSelected ? "bg-sky-50/70" : "bg-white"
+      }`}
+      onClick={() => selectProperty(property.id)}
+      type="button"
+    >
+      <ScoreBadge score={property.matchScore} />
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-semibold text-zinc-950">{property.name}</h3>
+          <span
+            className={`rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${complianceStyles[property.complianceStatus]}`}
+          >
+            {property.complianceStatus}
+          </span>
+        </div>
+        <p className="mt-1 text-sm leading-6 text-zinc-500">
+          {property.address} | {property.zipCode} | {property.bedroomCount} bd
+          | {property.squareFeet.toLocaleString()} sqft
+        </p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600">
+          {property.neighborhoodInsight.description}
+        </p>
+      </div>
+      <div className="grid gap-3 text-sm sm:grid-cols-3 md:min-w-72">
+        <Metric
+          label="Return"
+          value={formatPercent(property.totalAnnualReturn)}
+        />
+        <Metric
+          label="Cash flow"
+          value={formatCurrency(property.monthlyCashFlow)}
+        />
+        <Metric
+          label="Capital"
+          value={formatCurrency(property.minimumDownPayment)}
+        />
+      </div>
+    </button>
   );
 }
 
@@ -637,8 +634,8 @@ function MapView({
   }
 
   return (
-    <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <div className="relative min-h-80 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100">
+    <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="relative min-h-96 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100">
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.55)_1px,transparent_1px)] bg-[size:48px_48px]" />
         <div className="absolute inset-x-8 top-12 h-14 rotate-[-12deg] rounded-full bg-sky-100/80" />
         <div className="absolute bottom-10 left-8 right-8 h-16 rotate-[8deg] rounded-full bg-emerald-100/80" />
@@ -704,28 +701,35 @@ function MapView({
   );
 }
 
-function TopRecommendation({ property }: { property: RecommendedProperty }) {
+function SelectedPropertyDetail({ property }: { property: RecommendedProperty }) {
   return (
     <div>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-zinc-500">Best match</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-normal text-zinc-950">
+          <p className="text-sm font-medium text-zinc-500">Selected property</p>
+          <h2 className="mt-2 text-xl font-semibold tracking-normal text-zinc-950">
             {property.name}
           </h2>
           <p className="mt-1 text-sm text-zinc-500">
             {property.neighborhood} | {property.propertyType}
           </p>
         </div>
-        <ScoreBadge score={property.matchScore} />
+        <span
+          className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${complianceStyles[property.complianceStatus]}`}
+        >
+          {property.complianceStatus}
+        </span>
       </div>
+
       <div className="mt-5">
         <ValueTrendChart
           points={property.valueHistory}
           positive={property.valueChange >= 0}
         />
       </div>
+
       <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
+        <Metric label="Match" value={property.matchScore.toString()} />
         <Metric
           label="Total return"
           value={formatPercent(property.totalAnnualReturn)}
@@ -735,218 +739,24 @@ function TopRecommendation({ property }: { property: RecommendedProperty }) {
           value={formatPercent(property.cashOnCashReturn)}
         />
         <Metric
-          label="Capital needed"
-          value={formatCurrency(property.minimumDownPayment)}
-        />
-        <Metric
           label="Value move"
           tone={property.valueChange >= 0 ? "positive" : "negative"}
           value={formatSignedPercent(property.valueChangeRate)}
         />
       </div>
-    </div>
-  );
-}
 
-function RecommendationCard({
-  isSelected,
-  property,
-  selectProperty,
-}: {
-  isSelected: boolean;
-  property: RecommendedProperty;
-  selectProperty: (propertyId: string) => void;
-}) {
-  return (
-    <button
-      className={`rounded-lg border bg-white p-5 text-left transition hover:border-sky-300 ${
-        isSelected ? "border-sky-400 ring-2 ring-sky-100" : "border-zinc-200"
-      }`}
-      onClick={() => selectProperty(property.id)}
-      type="button"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-zinc-500">
-            {property.address}
-          </p>
-          <h3 className="mt-2 text-lg font-semibold tracking-normal text-zinc-950">
-            {property.name}
-          </h3>
-          <p className="mt-1 text-sm text-zinc-500">
-            {property.bedroomCount} bd | {property.bathroomCount} ba |{" "}
-            {property.squareFeet.toLocaleString()} sqft
-          </p>
-        </div>
-        <ScoreBadge score={property.matchScore} />
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-        <Metric
-          label="Price"
-          value={formatCurrency(property.currentEstimatedValue)}
-        />
-        <Metric label="ZIP" value={property.zipCode} />
-        <Metric
-          label="Cash flow"
-          value={formatCurrency(property.monthlyCashFlow)}
-        />
-        <Metric
-          label="Compliance"
-          value={property.complianceStatus}
-          valueClassName={
-            property.complianceStatus === "Eligible"
-              ? "text-emerald-700"
-              : property.complianceStatus === "Review"
-                ? "text-amber-700"
-                : "text-rose-700"
-          }
-        />
-      </div>
-      <p className="mt-4 text-sm leading-6 text-zinc-600">
-        {property.neighborhoodInsight.description}
-      </p>
-    </button>
-  );
-}
-
-function RecommendationTable({
-  recommendations,
-  selectProperty,
-  selectedPropertyId,
-}: {
-  recommendations: RecommendedProperty[];
-  selectProperty: (propertyId: string) => void;
-  selectedPropertyId?: string;
-}) {
-  return (
-    <section
-      className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm"
-      data-refresh-scope="recommendation-table"
-    >
-      <div className="flex flex-col gap-2 border-b border-zinc-200 px-5 py-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold tracking-normal text-zinc-950">
-            Ranked details
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-zinc-600">
-            Scores combine investor fit, returns, capital fit, risk, and SF
-            compliance constraints.
-          </p>
-        </div>
-        <p className="text-sm font-medium text-zinc-500">
-          {recommendations.length} results
+      <div className="mt-5 rounded-lg bg-zinc-50 p-4">
+        <h3 className="text-sm font-semibold text-zinc-950">
+          Neighborhood readout
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-zinc-700">
+          {property.neighborhoodInsight.description}
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
-          <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-normal text-zinc-500">
-            <tr>
-              <th scope="col" className="px-5 py-3">
-                Property
-              </th>
-              <th scope="col" className="px-5 py-3">
-                Match
-              </th>
-              <th scope="col" className="px-5 py-3">
-                Capital
-              </th>
-              <th scope="col" className="px-5 py-3">
-                Return
-              </th>
-              <th scope="col" className="px-5 py-3">
-                Compliance
-              </th>
-              <th scope="col" className="px-5 py-3">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100">
-            {recommendations.map((property) => (
-              <tr
-                className={`align-top ${
-                  property.id === selectedPropertyId ? "bg-sky-50/40" : ""
-                }`}
-                key={property.id}
-              >
-                <td className="px-5 py-4">
-                  <div className="font-medium text-zinc-950">
-                    {property.name}
-                  </div>
-                  <div className="mt-1 text-zinc-500">
-                    {property.neighborhood} | {property.zipCode} |{" "}
-                    {property.propertyType}
-                  </div>
-                </td>
-                <td className="px-5 py-4 font-semibold text-zinc-950">
-                  {property.matchScore}
-                </td>
-                <td className="px-5 py-4 text-zinc-700">
-                  {formatCurrency(property.minimumDownPayment)}
-                  {property.capitalGap > 0 ? (
-                    <div className="mt-1 text-xs font-semibold text-rose-700">
-                      {formatCurrency(property.capitalGap)} gap
-                    </div>
-                  ) : null}
-                </td>
-                <td className="px-5 py-4">
-                  <div className="font-medium text-zinc-950">
-                    {formatPercent(property.totalAnnualReturn)}
-                  </div>
-                  <div className="mt-1 text-zinc-500">
-                    {formatCurrency(property.monthlyCashFlow)} monthly
-                  </div>
-                </td>
-                <td className="px-5 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${complianceStyles[property.complianceStatus]}`}
-                  >
-                    {property.complianceStatus}
-                  </span>
-                </td>
-                <td className="px-5 py-4">
-                  <button
-                    className="rounded-md bg-zinc-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800"
-                    onClick={() => selectProperty(property.id)}
-                    type="button"
-                  >
-                    Inspect
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
+      <ProsCons property={property} />
 
-function SelectedPropertyDetail({ property }: { property: RecommendedProperty }) {
-  return (
-    <div>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium text-zinc-500">
-            Neighborhood intelligence
-          </p>
-          <h2 className="mt-2 text-xl font-semibold tracking-normal text-zinc-950">
-            {property.neighborhood}
-          </h2>
-        </div>
-        <span
-          className={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${complianceStyles[property.complianceStatus]}`}
-        >
-          {property.complianceStatus}
-        </span>
-      </div>
-
-      <p className="mt-4 text-sm leading-6 text-zinc-700">
-        {property.neighborhoodInsight.description}
-      </p>
-
-      <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
+      <div className="mt-5 grid grid-cols-2 gap-4 border-t border-zinc-100 pt-4 text-sm">
         <Metric
           label="Registration"
           value={property.strRegistrationLikely ? "Likely" : "Risk"}
@@ -960,34 +770,6 @@ function SelectedPropertyDetail({ property }: { property: RecommendedProperty })
           value={property.estimatedUnhostedNights.toString()}
         />
         <Metric label="Risk profile" value={property.riskRating} />
-      </div>
-
-      <ProsCons property={property} />
-
-      <div className="mt-5 rounded-lg bg-zinc-50 p-4">
-        <h3 className="text-sm font-semibold text-zinc-950">Recent signals</h3>
-        <div className="mt-3 space-y-3">
-          {property.neighborhoodInsight.news.map((item) => (
-            <article
-              className="rounded-md border border-zinc-200 bg-white px-3 py-2"
-              key={item.headline}
-            >
-              <p className="text-sm font-medium leading-5 text-zinc-950">
-                {item.headline}
-              </p>
-              <p className="mt-1 text-xs text-zinc-500">
-                {item.source} | {item.date}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-5 border-t border-zinc-100 pt-4">
-        <p className="text-sm font-medium text-zinc-500">Zoning notes</p>
-        <p className="mt-2 text-sm leading-6 text-zinc-700">
-          {property.zoningNotes}
-        </p>
       </div>
 
       <div className="mt-5 border-t border-zinc-100 pt-4">
@@ -1048,20 +830,17 @@ function Metric({
   label,
   tone = "neutral",
   value,
-  valueClassName,
 }: {
   label: string;
   tone?: "neutral" | "positive" | "negative";
   value: string;
-  valueClassName?: string;
 }) {
   const toneClass =
-    valueClassName ??
-    (tone === "positive"
+    tone === "positive"
       ? "text-emerald-700"
       : tone === "negative"
         ? "text-rose-700"
-        : "text-zinc-950");
+        : "text-zinc-950";
 
   return (
     <div>
@@ -1081,7 +860,7 @@ function ScoreBadge({ score }: { score: number }) {
 
   return (
     <span
-      className={`inline-flex h-12 w-12 items-center justify-center rounded-full bg-zinc-50 text-sm font-bold ring-1 ring-zinc-200 ${toneClass}`}
+      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ring-1 ${toneClass}`}
     >
       {score}
     </span>
