@@ -116,18 +116,13 @@ export function PropVestDashboard() {
         updateProfile={updateProfile}
         zipCode={zipCode}
       />
+      <FloatingFilterButton
+        isOpen={isFilterPanelOpen}
+        openFilters={() => setIsFilterPanelOpen(true)}
+      />
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-5 sm:px-6 lg:py-6">
         <HeroMasthead />
-
-        <DashboardToolbar
-          appliedZipCode={appliedZipCode}
-          hasSearched={hasSearched}
-          isFilterPanelOpen={isFilterPanelOpen}
-          openFilters={() => setIsFilterPanelOpen(true)}
-          radius={radius}
-          resultCount={filteredRecommendations.length}
-        />
 
         <SummaryStrip
           averageMatchScore={summary.averageMatchScore}
@@ -234,45 +229,27 @@ function HeroMasthead() {
   );
 }
 
-function DashboardToolbar({
-  appliedZipCode,
-  hasSearched,
-  isFilterPanelOpen,
+function FloatingFilterButton({
+  isOpen,
   openFilters,
-  radius,
-  resultCount,
 }: {
-  appliedZipCode: string;
-  hasSearched: boolean;
-  isFilterPanelOpen: boolean;
+  isOpen: boolean;
   openFilters: () => void;
-  radius: string;
-  resultCount: number;
 }) {
+  if (isOpen) {
+    return null;
+  }
+
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-sm font-semibold text-zinc-950">
-          {hasSearched
-            ? `${resultCount} matching properties`
-            : "All San Francisco candidates"}
-        </p>
-        <p className="mt-1 text-sm text-zinc-500">
-          {hasSearched
-            ? `${radius}${appliedZipCode ? ` around ${appliedZipCode}` : ""}`
-            : "Open filters to narrow by ZIP, capital, risk, and property type."}
-        </p>
-      </div>
-      <button
-        aria-controls="filters-panel"
-        aria-expanded={isFilterPanelOpen}
-        className="inline-flex items-center justify-center rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
-        onClick={openFilters}
-        type="button"
-      >
-        Filters
-      </button>
-    </section>
+    <button
+      aria-controls="filters-panel"
+      aria-expanded={false}
+      className="fixed left-0 top-28 z-30 rounded-r-md bg-zinc-950 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-sky-300"
+      onClick={openFilters}
+      type="button"
+    >
+      Filters
+    </button>
   );
 }
 
@@ -317,7 +294,7 @@ function FilterDrawer({
       <aside
         aria-label="Search and investor filters"
         aria-modal="true"
-        className="fixed left-0 top-14 z-40 h-[calc(100dvh-3.5rem)] w-[22rem] max-w-[calc(100vw-1rem)] overflow-hidden border-r border-zinc-200 bg-white shadow-2xl"
+        className="fixed bottom-0 left-0 top-14 z-40 w-[22rem] max-w-[calc(100vw-1rem)] overflow-hidden border-r border-zinc-200 bg-white shadow-2xl"
         data-refresh-scope="search-profile-controls"
         id="filters-panel"
         role="dialog"
