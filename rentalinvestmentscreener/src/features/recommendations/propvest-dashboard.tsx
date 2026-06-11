@@ -317,38 +317,40 @@ function FilterDrawer({
       <aside
         aria-label="Search and investor filters"
         aria-modal="true"
-        className="fixed bottom-0 left-0 top-14 z-40 w-[calc(100vw-1rem)] max-w-sm border-r border-zinc-200 bg-white shadow-2xl"
+        className="fixed left-0 top-14 z-40 h-[calc(100dvh-3.5rem)] w-[22rem] max-w-[calc(100vw-1rem)] overflow-hidden border-r border-zinc-200 bg-white shadow-2xl"
         data-refresh-scope="search-profile-controls"
         id="filters-panel"
         role="dialog"
       >
-        <div className="flex h-full flex-col">
-          <div className="flex items-start justify-between gap-4 border-b border-zinc-200 px-5 py-4">
-            <div>
-              <h2 className="text-lg font-semibold tracking-normal text-zinc-950">
-                Filters
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-zinc-600">
-                Tune the search without changing the dashboard layout.
-              </p>
+        <div className="flex h-full min-h-0 flex-col">
+          <div className="shrink-0 border-b border-zinc-200 px-4 py-3">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold tracking-normal text-zinc-950">
+                  Filters
+                </h2>
+                <p className="mt-1 text-sm leading-5 text-zinc-600">
+                  Tune the search without changing the dashboard layout.
+                </p>
+              </div>
+              <button
+                className="rounded-md px-3 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
+                onClick={closePanel}
+                type="button"
+              >
+                Close
+              </button>
             </div>
-            <button
-              className="rounded-md px-3 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
-              onClick={closePanel}
-              type="button"
-            >
-              Close
-            </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-5">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
             <div className="rounded-md bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-600">
               {hasSearched
                 ? `${resultCount} matching properties`
                 : "All San Francisco candidates"}
             </div>
 
-            <div className="mt-5 space-y-5">
+            <div className="mt-4 space-y-4">
               <TextField
                 label="ZIP code"
                 maxLength={5}
@@ -411,7 +413,7 @@ function FilterDrawer({
             </div>
           </div>
 
-          <div className="border-t border-zinc-200 p-5">
+          <div className="shrink-0 border-t border-zinc-200 bg-white p-4">
             <button
               className="w-full rounded-md bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
               onClick={applySearch}
