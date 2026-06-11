@@ -14,6 +14,7 @@ rentalinvestmentscreener/
 |   `-- wireframes/
 |-- docs/
 |-- public/
+|   `-- listing-images/
 |-- src/
 |   |-- app/
 |   |   |-- layout.tsx
@@ -35,6 +36,7 @@ rentalinvestmentscreener/
 - `src/features/recommendations/`: Client-side PropVest dashboard with scoped React state updates.
 - `src/features/screening/`: San Francisco property candidate types, seed candidate data, matching, and screening calculations.
 - `src/lib/`: Generic helpers that are not tied to a specific feature.
+- `public/listing-images/`: Demo listing photos served by Next.js from stable public paths.
 - `design/`: Figma wireframe exports and notes for UI implementation.
 - `docs/`: Product objective mapping and implementation notes.
 
@@ -92,7 +94,8 @@ The current page uses typed San Francisco sample candidates from `src/features/s
 1. Add untouched source exports to `data/raw/`.
 2. Normalize column names and values into `data/processed/`.
 3. Match import files to the templates in `data/templates/`.
-4. Keep sensitive seller, tenant, and loan details out of committed CSVs.
+4. Store demo listing photos in `public/listing-images/` and reference them with `/listing-images/...` paths in `image_urls`.
+5. Keep sensitive seller, tenant, and loan details out of committed CSVs.
 
 ## Scoped DOM Updates
 

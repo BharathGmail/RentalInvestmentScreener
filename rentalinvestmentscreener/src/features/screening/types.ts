@@ -58,6 +58,7 @@ export type PropertyCandidate = {
   status: PropertyStatus;
   strategy: string;
   source: string;
+  imageUrls: string[];
   purchasePrice: number;
   currentEstimatedValue: number;
   estimatedNightlyRate: number;

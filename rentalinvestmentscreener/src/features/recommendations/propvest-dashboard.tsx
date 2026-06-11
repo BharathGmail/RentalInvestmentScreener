@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { ValueTrendChart } from "@/components/value-trend-chart";
 import { propertyCandidates } from "@/features/screening/property-candidates";
@@ -574,16 +575,22 @@ function RecommendationRow({
 }) {
   return (
     <button
-      className={`grid w-full gap-4 px-5 py-4 text-left transition hover:bg-zinc-50 md:grid-cols-[3rem_minmax(0,1fr)_auto] md:items-center ${
+      className={`grid w-full gap-4 px-4 py-4 text-left transition hover:bg-zinc-50 sm:grid-cols-[6rem_minmax(0,1fr)] lg:grid-cols-[7rem_minmax(0,1fr)_auto] lg:items-center ${
         isSelected ? "bg-sky-50/70" : "bg-white"
       }`}
       onClick={() => selectProperty(property.id)}
       type="button"
     >
-      <ScoreBadge score={property.matchScore} />
+      <ListingImage
+        alt={`${property.name} listing photo`}
+        className="aspect-[16/9] sm:aspect-square lg:aspect-[4/3]"
+        imageUrl={property.imageUrls[0]}
+        sizes="(max-width: 640px) 100vw, 112px"
+      />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="font-semibold text-zinc-950">{property.name}</h3>
+          <ScorePill score={property.matchScore} />
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${complianceStyles[property.complianceStatus]}`}
           >
@@ -598,7 +605,7 @@ function RecommendationRow({
           {property.neighborhoodInsight.description}
         </p>
       </div>
-      <div className="grid gap-3 text-sm sm:grid-cols-3 md:min-w-72">
+      <div className="grid gap-3 text-sm sm:col-start-2 sm:grid-cols-3 lg:col-start-auto lg:min-w-72">
         <Metric
           label="Return"
           value={formatPercent(property.totalAnnualReturn)}
@@ -720,6 +727,8 @@ function SelectedPropertyDetail({ property }: { property: RecommendedProperty })
           {property.complianceStatus}
         </span>
       </div>
+
+      <ListingImageGallery property={property} />
 
       <div className="mt-5">
         <ValueTrendChart
@@ -850,7 +859,79 @@ function Metric({
   );
 }
 
-function ScoreBadge({ score }: { score: number }) {
+function ListingImage({
+  alt,
+  className,
+  imageUrl,
+  sizes,
+}: {
+  alt: string;
+  className: string;
+  imageUrl?: string;
+  sizes: string;
+}) {
+  if (!imageUrl) {
+    return (
+      <div
+        className={`flex items-center justify-center rounded-md bg-zinc-100 text-xs font-medium text-zinc-500 ${className}`}
+      >
+        No image
+      </div>
+    );
+  }
+
+  return (
+    <div className={`relative overflow-hidden rounded-md bg-zinc-100 ${className}`}>
+      <Image
+        alt={alt}
+        className="object-cover"
+        fill
+        sizes={sizes}
+        src={imageUrl}
+      />
+    </div>
+  );
+}
+
+function ListingImageGallery({ property }: { property: RecommendedProperty }) {
+  const [primaryImage, ...secondaryImages] = property.imageUrls;
+
+  return (
+    <div className="mt-5 grid gap-2">
+      <ListingImage
+        alt={`${property.name} primary listing photo`}
+        className="aspect-[4/3]"
+        imageUrl={primaryImage}
+        sizes="(max-width: 1024px) 100vw, 352px"
+      />
+      {secondaryImages.length > 0 ? (
+        <div className="grid grid-cols-2 gap-2">
+          {secondaryImages.slice(0, 2).map((imageUrl, index) => (
+            <ListingImage
+              alt={`${property.name} listing photo ${index + 2}`}
+              className="aspect-[4/3]"
+              imageUrl={imageUrl}
+              key={imageUrl}
+              sizes="(max-width: 1024px) 50vw, 172px"
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ScorePill({ score }: { score: number }) {
+  return (
+    <span
+      className={`rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${getScoreStyle(score)}`}
+    >
+      {score} match
+    </span>
+  );
+}
+
+function getScoreStyle(score: number) {
   const toneClass =
     score >= 80
       ? scoreStyles.high
@@ -858,13 +939,7 @@ function ScoreBadge({ score }: { score: number }) {
         ? scoreStyles.medium
         : scoreStyles.low;
 
-  return (
-    <span
-      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ring-1 ${toneClass}`}
-    >
-      {score}
-    </span>
-  );
+  return toneClass;
 }
 
 function EmptyState({ title }: { title: string }) {
