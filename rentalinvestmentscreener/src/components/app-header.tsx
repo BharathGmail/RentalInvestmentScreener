@@ -9,11 +9,11 @@ const navigationItems = [
 export function AppHeader() {
   return (
     <header className="sticky top-0 z-20 border-b border-zinc-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex min-h-16 w-full max-w-7xl flex-col justify-center gap-3 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-0">
+      <div className="mx-auto flex min-h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="text-base font-semibold tracking-normal text-zinc-950"
+            className="whitespace-nowrap text-base font-semibold tracking-normal text-zinc-950"
           >
             PropVest AI
           </Link>
@@ -21,12 +21,15 @@ export function AppHeader() {
             SF
           </span>
         </div>
-        <nav aria-label="Primary navigation" className="flex flex-wrap gap-2">
+        <nav
+          aria-label="Primary navigation"
+          className="flex shrink-0 items-center gap-1"
+        >
           {navigationItems.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
+              className="rounded-md px-2.5 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950 sm:px-3"
             >
               {item.label}
             </a>

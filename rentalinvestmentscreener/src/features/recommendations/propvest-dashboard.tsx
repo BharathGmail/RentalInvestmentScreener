@@ -43,6 +43,11 @@ const propertyTypes: PreferredPropertyType[] = [
   "Multi-unit",
 ];
 const radiusOptions = ["All SF", "1 mile", "3 miles", "5 miles"];
+const heroImages = [
+  "/listing-images/listing_16.png",
+  "/listing-images/listing_04.png",
+  "/listing-images/listing_10.png",
+];
 
 const complianceStyles: Record<ComplianceStatus, string> = {
   Blocked: "bg-rose-50 text-rose-700 ring-rose-200",
@@ -202,21 +207,29 @@ export function PropVestDashboard() {
 function HeroMasthead() {
   return (
     <section
-      className="relative overflow-hidden rounded-lg border border-zinc-200 bg-zinc-950"
+      className="relative isolate overflow-hidden rounded-lg border border-zinc-200 bg-zinc-950"
       id="search"
     >
-      <div
-        className="absolute inset-0 bg-cover bg-top opacity-25"
-        style={{
-          backgroundImage: "url('/sf-property-search-wireframe.png')",
-        }}
-      />
-      <div className="absolute inset-0 bg-zinc-950/65" />
-      <div className="relative px-5 py-6 text-white sm:px-7">
-        <p className="text-sm font-semibold uppercase tracking-normal text-white/70">
+      <div className="absolute inset-0 grid grid-cols-3 opacity-70">
+        {heroImages.map((imageUrl) => (
+          <div className="relative min-w-0" key={imageUrl}>
+            <Image
+              alt=""
+              className="object-cover"
+              fill
+              priority
+              sizes="(max-width: 768px) 34vw, 384px"
+              src={imageUrl}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/85 to-zinc-950/55" />
+      <div className="relative flex min-h-72 flex-col justify-end px-5 py-7 text-white sm:px-7 md:min-h-80">
+        <p className="text-xs font-semibold uppercase tracking-normal text-white/70 sm:text-sm">
           PropVest AI | San Francisco
         </p>
-        <h1 className="mt-2 max-w-3xl text-3xl font-semibold tracking-normal sm:text-4xl">
+        <h1 className="mt-2 max-w-2xl text-3xl font-semibold leading-tight tracking-normal sm:text-4xl">
           A cleaner way to evaluate SF investment properties.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">
@@ -509,23 +522,34 @@ function ViewTabs({
   activeView: ActiveView;
   setActiveView: (view: ActiveView) => void;
 }) {
+  const labels: Record<ActiveView, string> = {
+    list: "List",
+    map: "Map",
+  };
+
   return (
-    <div className="grid w-full grid-cols-2 gap-1 rounded-md bg-zinc-100 p-1 sm:w-auto">
+    <div
+      aria-label="Recommendation view"
+      className="grid w-full grid-cols-2 gap-1 rounded-md bg-zinc-100 p-1 sm:w-auto"
+      role="tablist"
+    >
       {(["list", "map"] as ActiveView[]).map((view) => {
         const isActive = activeView === view;
 
         return (
           <button
-            className={`rounded-md px-4 py-2 text-sm font-semibold capitalize transition ${
+            aria-selected={isActive}
+            className={`min-w-20 rounded-md px-4 py-2 text-sm font-semibold transition ${
               isActive
                 ? "bg-white text-zinc-950 shadow-sm"
                 : "text-zinc-600 hover:text-zinc-950"
             }`}
             key={view}
             onClick={() => setActiveView(view)}
+            role="tab"
             type="button"
           >
-            {view}
+            {labels[view]}
           </button>
         );
       })}
