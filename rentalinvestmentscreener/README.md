@@ -25,6 +25,8 @@ rentalinvestmentscreener/
 |   |   |-- recommendations/
 |   |   `-- screening/
 |   `-- lib/
+|-- .dockerignore
+|-- Dockerfile
 |-- package.json
 `-- tsconfig.json
 ```
@@ -58,6 +60,22 @@ Run the local development server:
 
 ```bash
 npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Docker
+
+Build the production image from this app directory:
+
+```bash
+docker build -t rental-investment-screener .
+```
+
+Run the container locally:
+
+```bash
+docker run --rm --name rental-investment-screener -p 3000:3000 rental-investment-screener
 ```
 
 Open `http://localhost:3000`.

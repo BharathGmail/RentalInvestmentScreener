@@ -44,9 +44,9 @@ const propertyTypes: PreferredPropertyType[] = [
 ];
 const radiusOptions = ["All SF", "1 mile", "3 miles", "5 miles"];
 const heroImages = [
+  "/sf-property-search-hero.png",
   "/listing-images/listing_16.png",
-  "/listing-images/listing_10.png",
-  "/listing-images/listing_04.png",
+  "/sf-property-search-hero.png",
 ];
 
 const complianceStyles: Record<ComplianceStatus, string> = {
@@ -222,11 +222,17 @@ function HeroMasthead() {
       id="search"
     >
       <div className="absolute inset-0 grid grid-cols-3">
-        {heroImages.map((imageUrl) => (
-          <div className="relative min-w-0" key={imageUrl}>
+        {heroImages.map((imageUrl, index) => (
+          <div className="relative min-w-0" key={`${imageUrl}-${index}`}>
             <Image
               alt=""
-              className="object-cover"
+              className={`object-cover ${
+                index === 0
+                  ? "object-left"
+                  : index === 1
+                    ? "object-center"
+                    : "object-right"
+              }`}
               fill
               priority
               sizes="(max-width: 768px) 34vw, 384px"
@@ -235,14 +241,17 @@ function HeroMasthead() {
           </div>
         ))}
       </div>
-      <div className="absolute inset-0 bg-zinc-950/45" />
+      <div className="absolute inset-0 bg-zinc-950/55" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-zinc-950/70 to-transparent" />
       <div className="relative flex h-44 flex-col items-center justify-center px-5 text-center text-white sm:h-56 lg:h-64">
-        <h1 className="text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
-          Property Search
-        </h1>
-        <p className="mt-3 text-base font-medium leading-6 text-white/85 sm:text-lg">
-          Buy your next home in the Bay Area
-        </p>
+        <div className="rounded-lg bg-zinc-950/55 px-5 py-4 shadow-xl ring-1 ring-white/15 backdrop-blur-sm sm:px-7">
+          <h1 className="text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
+            Property Search
+          </h1>
+          <p className="mt-3 text-base font-medium leading-6 text-white/90 sm:text-lg">
+            Buy your next home in the Bay Area
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -733,23 +742,75 @@ function MapView({
   }
 
   return (
-    <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_17rem]">
-      <div className="relative min-h-96 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100">
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.55)_1px,transparent_1px)] bg-[size:48px_48px]" />
-        <div className="absolute inset-x-8 top-12 h-14 rotate-[-12deg] rounded-full bg-sky-100/80" />
-        <div className="absolute bottom-10 left-8 right-8 h-16 rotate-[8deg] rounded-full bg-emerald-100/80" />
-        <span className="absolute left-5 top-4 rounded-full bg-white px-3 py-1 text-xs font-semibold text-zinc-600 shadow-sm ring-1 ring-zinc-200">
-          Schematic SF map
+    <div className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <div className="relative min-h-[30rem] overflow-hidden rounded-lg border border-zinc-200 bg-[#e8efe3]">
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.55)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.55)_1px,transparent_1px)] bg-[size:34px_34px]" />
+        <div className="absolute inset-y-0 -left-10 w-24 bg-sky-100/90" />
+        <div className="absolute inset-y-0 right-0 w-[33%] rounded-l-[45%] bg-sky-100" />
+        <div className="absolute bottom-0 right-[24%] h-[30%] w-[26%] rounded-tl-[70%] bg-sky-100/95" />
+
+        <div className="absolute left-[7%] top-[12%] h-[14%] w-[22%] -rotate-6 rounded-[40%] bg-emerald-100 ring-1 ring-emerald-200" />
+        <div className="absolute left-[9%] top-[43%] h-[12%] w-[34%] -rotate-6 rounded-lg bg-emerald-100 ring-1 ring-emerald-200" />
+        <div className="absolute left-[47%] top-[57%] h-[13%] w-[18%] rotate-12 rounded-[42%] bg-emerald-100 ring-1 ring-emerald-200" />
+
+        <div className="absolute left-[10%] right-[30%] top-[22%] h-2 -rotate-12 rounded-full bg-white/90 shadow-sm" />
+        <div className="absolute left-[14%] right-[34%] top-[35%] h-2 rotate-6 rounded-full bg-white/90 shadow-sm" />
+        <div className="absolute left-[12%] right-[35%] top-[48%] h-2 -rotate-3 rounded-full bg-white/90 shadow-sm" />
+        <div className="absolute left-[20%] right-[38%] top-[64%] h-2 rotate-12 rounded-full bg-white/90 shadow-sm" />
+        <div className="absolute bottom-[22%] left-[26%] right-[34%] h-2 -rotate-[18deg] rounded-full bg-white/90 shadow-sm" />
+
+        <div className="absolute bottom-[14%] left-[54%] top-[13%] w-2 rotate-[18deg] rounded-full bg-amber-100 shadow-sm ring-1 ring-amber-200" />
+        <div className="absolute bottom-[19%] left-[38%] top-[18%] w-2 -rotate-[10deg] rounded-full bg-white/90 shadow-sm" />
+        <div className="absolute bottom-[23%] left-[25%] top-[20%] w-2 rotate-[4deg] rounded-full bg-white/90 shadow-sm" />
+        <div className="absolute bottom-[18%] left-[69%] top-[15%] w-2 rotate-[12deg] rounded-full bg-white/90 shadow-sm" />
+
+        <span className="absolute left-[10%] top-[17%] rounded bg-emerald-50/90 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-normal text-emerald-800 ring-1 ring-emerald-200">
+          Presidio
         </span>
+        <span className="absolute left-[15%] top-[46%] rounded bg-emerald-50/90 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-normal text-emerald-800 ring-1 ring-emerald-200">
+          Golden Gate Park
+        </span>
+        <span className="absolute left-[56%] top-[31%] rounded bg-white/85 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-normal text-zinc-600 ring-1 ring-zinc-200">
+          Downtown
+        </span>
+        <span className="absolute left-[46%] top-[51%] rounded bg-white/85 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-normal text-zinc-600 ring-1 ring-zinc-200">
+          Mission
+        </span>
+        <span className="absolute bottom-[17%] left-[31%] rounded bg-white/85 px-2 py-1 text-[0.65rem] font-semibold uppercase tracking-normal text-zinc-600 ring-1 ring-zinc-200">
+          Sunset
+        </span>
+        <span className="absolute right-[7%] top-[17%] text-xs font-semibold uppercase tracking-normal text-sky-700/80">
+          San Francisco Bay
+        </span>
+        <span className="absolute bottom-4 left-5 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-zinc-600 shadow-sm ring-1 ring-zinc-200">
+          San Francisco
+        </span>
+        <div
+          aria-hidden="true"
+          className="absolute right-4 top-4 overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-zinc-200"
+        >
+          <span className="flex h-8 w-8 items-center justify-center text-sm font-semibold text-zinc-700">
+            +
+          </span>
+          <div className="h-px bg-zinc-200" />
+          <span className="flex h-8 w-8 items-center justify-center text-sm font-semibold text-zinc-700">
+            -
+          </span>
+        </div>
+        <div className="absolute bottom-4 right-4 rounded bg-white/95 px-2 py-1 text-[0.65rem] font-semibold text-zinc-500 shadow-sm ring-1 ring-zinc-200">
+          2 mi
+        </div>
+
         {recommendations.map((property) => {
           const isSelected = property.id === selectedPropertyId;
 
           return (
             <button
-              className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-white p-1 shadow-sm transition hover:scale-105 ${
+              aria-label={`Select ${property.name}`}
+              className={`absolute z-20 -translate-x-1/2 -translate-y-full transition hover:scale-105 ${
                 isSelected
-                  ? "border-sky-500 ring-4 ring-sky-100"
-                  : "border-white"
+                  ? "drop-shadow-[0_8px_14px_rgba(2,132,199,0.35)]"
+                  : "drop-shadow-[0_6px_10px_rgba(15,23,42,0.18)]"
               }`}
               key={property.id}
               onClick={() => selectProperty(property.id)}
@@ -760,22 +821,31 @@ function MapView({
               type="button"
             >
               <span
-                className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold ${
+                className={`relative flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-xs font-bold text-white ring-2 ring-white ${
                   property.matchScore >= 80
-                    ? "bg-emerald-100 text-emerald-700"
+                    ? "bg-emerald-600"
                     : property.matchScore >= 60
-                      ? "bg-amber-100 text-amber-700"
-                      : "bg-rose-100 text-rose-700"
-                }`}
+                      ? "bg-amber-500"
+                      : "bg-rose-600"
+                } ${isSelected ? "outline outline-4 outline-sky-200" : ""}`}
               >
                 {property.matchScore}
+                <span
+                  className={`absolute left-1/2 top-[1.85rem] h-3 w-3 -translate-x-1/2 rotate-45 ring-2 ring-white ${
+                    property.matchScore >= 80
+                      ? "bg-emerald-600"
+                      : property.matchScore >= 60
+                        ? "bg-amber-500"
+                        : "bg-rose-600"
+                  }`}
+                />
               </span>
             </button>
           );
         })}
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2 lg:max-h-[30rem] lg:overflow-y-auto">
         {recommendations.map((property) => (
           <button
             className={`w-full rounded-md border px-3 py-2 text-left text-sm transition ${
@@ -787,11 +857,20 @@ function MapView({
             onClick={() => selectProperty(property.id)}
             type="button"
           >
-            <span className="block font-semibold text-zinc-950">
-              {property.neighborhood}
-            </span>
-            <span className="mt-1 block text-zinc-500">
-              {property.name} | {property.matchScore} match
+            <span className="flex items-start justify-between gap-3">
+              <span>
+                <span className="block font-semibold text-zinc-950">
+                  {property.neighborhood}
+                </span>
+                <span className="mt-1 block text-zinc-500">
+                  {property.name}
+                </span>
+              </span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${getScoreStyle(property.matchScore)}`}
+              >
+                {property.matchScore}
+              </span>
             </span>
           </button>
         ))}

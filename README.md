@@ -10,6 +10,7 @@ The app package lives in `rentalinvestmentscreener/`.
 .
 |-- README.md
 `-- rentalinvestmentscreener/
+    |-- .dockerignore
     |-- data/
     |   |-- raw/
     |   |-- processed/
@@ -17,6 +18,7 @@ The app package lives in `rentalinvestmentscreener/`.
     |-- design/
     |   `-- wireframes/
     |-- docs/
+    |-- Dockerfile
     |-- public/
     |   `-- listing-images/
     |-- src/
@@ -49,6 +51,23 @@ npm run dev
 ```
 
 Open `http://localhost:3000` after the dev server starts.
+
+## Docker
+
+Build the production image:
+
+```bash
+cd rentalinvestmentscreener
+docker build -t rental-investment-screener .
+```
+
+Run the container:
+
+```bash
+docker run --rm --name rental-investment-screener -p 3000:3000 rental-investment-screener
+```
+
+Open `http://localhost:3000` after the container starts.
 
 ## Verification
 
