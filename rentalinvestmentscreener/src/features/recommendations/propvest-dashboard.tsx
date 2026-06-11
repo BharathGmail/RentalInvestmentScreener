@@ -212,19 +212,20 @@ export function PropVestDashboard() {
 function HeroMasthead() {
   return (
     <section
-      className="rounded-lg border border-zinc-200 bg-white px-5 py-6 shadow-sm sm:px-6"
+      aria-label="San Francisco Property Search"
+      className="relative overflow-hidden rounded-lg border border-zinc-200 bg-zinc-950 shadow-sm"
       id="search"
     >
-      <p className="text-xs font-semibold uppercase tracking-normal text-zinc-500">
-        PropVest AI | San Francisco
-      </p>
-      <h1 className="mt-2 max-w-3xl text-2xl font-semibold leading-tight tracking-normal text-zinc-950 sm:text-3xl">
-        Evaluate SF investment properties with clear recommendations.
-      </h1>
-      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600 sm:text-base">
-        Open filters when you need to refine investor assumptions, then compare
-        results and compliance details without visual clutter.
-      </p>
+      <Image
+        alt=""
+        className="h-44 w-full object-cover object-center sm:h-56 lg:h-64"
+        height={384}
+        priority
+        sizes="(max-width: 1280px) 100vw, 1152px"
+        src="/sf-property-search-hero.png"
+        width={2560}
+      />
+      <h1 className="sr-only">San Francisco Property Search</h1>
     </section>
   );
 }
