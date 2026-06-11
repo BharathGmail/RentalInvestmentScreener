@@ -70,6 +70,7 @@ export function PropVestDashboard() {
   const [radius, setRadius] = useState(radiusOptions[0]);
   const [hasSearched, setHasSearched] = useState(false);
   const [activeView, setActiveView] = useState<ActiveView>("list");
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
 
   const recommendations = useMemo(
     () => recommendProperties(propertyCandidates, profile),
@@ -102,15 +103,16 @@ export function PropVestDashboard() {
     const normalizedZipCode = zipCode.trim();
     setAppliedZipCode(normalizedZipCode.length === 5 ? normalizedZipCode : "");
     setHasSearched(true);
+    setIsFilterPanelOpen(false);
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-5 sm:px-6 lg:py-6">
-      <HeroMasthead />
-
-      <SearchAndProfilePanel
+    <>
+      <FilterDrawer
         applySearch={applySearch}
+        closePanel={() => setIsFilterPanelOpen(false)}
         hasSearched={hasSearched}
+        isOpen={isFilterPanelOpen}
         profile={profile}
         radius={radius}
         resultCount={filteredRecommendations.length}
@@ -120,87 +122,100 @@ export function PropVestDashboard() {
         zipCode={zipCode}
       />
 
-      <SummaryStrip
-        averageMatchScore={summary.averageMatchScore}
-        blockedCount={summary.blockedCount}
-        eligibleCount={summary.eligibleCount}
-        topRecommendation={summary.topRecommendation}
-        totalResults={filteredRecommendations.length}
-      />
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-5 sm:px-6 lg:py-6">
+        <HeroMasthead />
 
-      <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <section
-          className="min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm"
-          data-refresh-scope="results-workspace"
-          id="results"
-        >
-          <div className="flex flex-col gap-3 border-b border-zinc-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0">
-              <h2 className="text-xl font-semibold tracking-normal text-zinc-950">
-                Recommended properties
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-zinc-600">
-                {hasSearched
-                  ? `Showing ${filteredRecommendations.length} properties within ${radius}${
-                      appliedZipCode ? ` of ${appliedZipCode}` : ""
-                    }.`
-                  : "Review all San Francisco candidates or narrow by ZIP."}
-              </p>
+        <DashboardToolbar
+          appliedZipCode={appliedZipCode}
+          hasSearched={hasSearched}
+          isFilterPanelOpen={isFilterPanelOpen}
+          openFilters={() => setIsFilterPanelOpen(true)}
+          radius={radius}
+          resultCount={filteredRecommendations.length}
+        />
+
+        <SummaryStrip
+          averageMatchScore={summary.averageMatchScore}
+          blockedCount={summary.blockedCount}
+          eligibleCount={summary.eligibleCount}
+          topRecommendation={summary.topRecommendation}
+          totalResults={filteredRecommendations.length}
+        />
+
+        <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <section
+            className="min-w-0 overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm"
+            data-refresh-scope="results-workspace"
+            id="results"
+          >
+            <div className="flex flex-col gap-3 border-b border-zinc-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                <h2 className="text-xl font-semibold tracking-normal text-zinc-950">
+                  Recommended properties
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-zinc-600">
+                  {hasSearched
+                    ? `Showing ${filteredRecommendations.length} properties within ${radius}${
+                        appliedZipCode ? ` of ${appliedZipCode}` : ""
+                      }.`
+                    : "Review all San Francisco candidates or narrow by ZIP."}
+                </p>
+              </div>
+              <ViewTabs activeView={activeView} setActiveView={setActiveView} />
             </div>
-            <ViewTabs activeView={activeView} setActiveView={setActiveView} />
-          </div>
 
-          {activeView === "list" ? (
-            <RecommendationList
-              recommendations={filteredRecommendations}
-              selectedPropertyId={selectedProperty?.id}
-              selectProperty={setSelectedPropertyId}
-            />
-          ) : (
-            <MapView
-              recommendations={filteredRecommendations}
-              selectedPropertyId={selectedProperty?.id}
-              selectProperty={setSelectedPropertyId}
-            />
-          )}
+            {activeView === "list" ? (
+              <RecommendationList
+                recommendations={filteredRecommendations}
+                selectedPropertyId={selectedProperty?.id}
+                selectProperty={setSelectedPropertyId}
+              />
+            ) : (
+              <MapView
+                recommendations={filteredRecommendations}
+                selectedPropertyId={selectedProperty?.id}
+                selectProperty={setSelectedPropertyId}
+              />
+            )}
+          </section>
+
+          <aside
+            aria-live="polite"
+            className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
+            data-refresh-scope="selected-property-detail"
+            id="details"
+          >
+            {selectedProperty ? (
+              <SelectedPropertyDetail property={selectedProperty} />
+            ) : (
+              <EmptyState title="No matching properties. Clear the ZIP filter to see all candidates." />
+            )}
+          </aside>
         </section>
 
-        <aside
-          aria-live="polite"
-          className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
-          data-refresh-scope="selected-property-detail"
-          id="details"
+        <section
+          className="grid gap-4 rounded-lg border border-zinc-200 bg-white p-5 shadow-sm md:grid-cols-4"
+          id="data"
         >
-          {selectedProperty ? (
-            <SelectedPropertyDetail property={selectedProperty} />
-          ) : (
-            <EmptyState title="No matching properties. Clear the ZIP filter to see all candidates." />
-          )}
-        </aside>
-      </section>
-
-      <section
-        className="grid gap-4 rounded-lg border border-zinc-200 bg-white p-5 shadow-sm md:grid-cols-4"
-        id="data"
-      >
-        <ObjectiveCard
-          body="San Francisco-only candidate data keeps the launch scope focused."
-          title="Market focus"
-        />
-        <ObjectiveCard
-          body="Revenue, cost, capital, and appreciation inputs drive the score."
-          title="Financial engine"
-        />
-        <ObjectiveCard
-          body="Registration, HOA, and unhosted-night risks are visible early."
-          title="Regulatory layer"
-        />
-        <ObjectiveCard
-          body="Search and profile changes update scoped sections only."
-          title="Scoped updates"
-        />
-      </section>
-    </main>
+          <ObjectiveCard
+            body="San Francisco-only candidate data keeps the launch scope focused."
+            title="Market focus"
+          />
+          <ObjectiveCard
+            body="Revenue, cost, capital, and appreciation inputs drive the score."
+            title="Financial engine"
+          />
+          <ObjectiveCard
+            body="Registration, HOA, and unhosted-night risks are visible early."
+            title="Regulatory layer"
+          />
+          <ObjectiveCard
+            body="Search and profile changes update scoped sections only."
+            title="Scoped updates"
+          />
+        </section>
+      </main>
+    </>
   );
 }
 
@@ -241,9 +256,53 @@ function HeroMasthead() {
   );
 }
 
-function SearchAndProfilePanel({
-  applySearch,
+function DashboardToolbar({
+  appliedZipCode,
   hasSearched,
+  isFilterPanelOpen,
+  openFilters,
+  radius,
+  resultCount,
+}: {
+  appliedZipCode: string;
+  hasSearched: boolean;
+  isFilterPanelOpen: boolean;
+  openFilters: () => void;
+  radius: string;
+  resultCount: number;
+}) {
+  return (
+    <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-sm font-semibold text-zinc-950">
+          {hasSearched
+            ? `${resultCount} matching properties`
+            : "All San Francisco candidates"}
+        </p>
+        <p className="mt-1 text-sm text-zinc-500">
+          {hasSearched
+            ? `${radius}${appliedZipCode ? ` around ${appliedZipCode}` : ""}`
+            : "Open filters to narrow by ZIP, capital, risk, and property type."}
+        </p>
+      </div>
+      <button
+        aria-controls="filters-panel"
+        aria-expanded={isFilterPanelOpen}
+        className="inline-flex items-center justify-center rounded-md bg-zinc-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+        onClick={openFilters}
+        type="button"
+      >
+        Filters
+      </button>
+    </section>
+  );
+}
+
+function FilterDrawer({
+  applySearch,
+  closePanel,
+  hasSearched,
+  isOpen,
   profile,
   radius,
   resultCount,
@@ -253,7 +312,9 @@ function SearchAndProfilePanel({
   zipCode,
 }: {
   applySearch: () => void;
+  closePanel: () => void;
   hasSearched: boolean;
+  isOpen: boolean;
   profile: InvestorProfile;
   radius: string;
   resultCount: number;
@@ -262,97 +323,128 @@ function SearchAndProfilePanel({
   updateProfile: (partialProfile: Partial<InvestorProfile>) => void;
   zipCode: string;
 }) {
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <section
-      className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
-      data-refresh-scope="search-profile-controls"
-      id="profile"
-    >
-      <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold tracking-normal text-zinc-950">
-            Search and investor fit
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-zinc-600">
-            Keep the inputs light. The ranking updates instantly as assumptions
-            change.
-          </p>
+    <>
+      <button
+        aria-label="Close filters"
+        className="fixed inset-x-0 bottom-0 top-14 z-30 bg-zinc-950/20"
+        onClick={closePanel}
+        tabIndex={-1}
+        type="button"
+      />
+      <aside
+        aria-label="Search and investor filters"
+        aria-modal="true"
+        className="fixed bottom-0 left-0 top-14 z-40 w-[calc(100vw-1rem)] max-w-sm border-r border-zinc-200 bg-white shadow-2xl"
+        data-refresh-scope="search-profile-controls"
+        id="filters-panel"
+        role="dialog"
+      >
+        <div className="flex h-full flex-col">
+          <div className="flex items-start justify-between gap-4 border-b border-zinc-200 px-5 py-4">
+            <div>
+              <h2 className="text-lg font-semibold tracking-normal text-zinc-950">
+                Filters
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-zinc-600">
+                Tune the search without changing the dashboard layout.
+              </p>
+            </div>
+            <button
+              className="rounded-md px-3 py-2 text-sm font-semibold text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
+              onClick={closePanel}
+              type="button"
+            >
+              Close
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-5 py-5">
+            <div className="rounded-md bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-600">
+              {hasSearched
+                ? `${resultCount} matching properties`
+                : "All San Francisco candidates"}
+            </div>
+
+            <div className="mt-5 space-y-5">
+              <TextField
+                label="ZIP code"
+                maxLength={5}
+                onChange={(value) => setZipCode(value.replace(/\D/g, ""))}
+                placeholder="e.g. 94114"
+                value={zipCode}
+              />
+              <SelectField
+                label="Search radius"
+                options={radiusOptions}
+                value={radius}
+                updateValue={setRadius}
+              />
+              <NumberField
+                label="Available capital"
+                min={0}
+                step={25000}
+                value={profile.availableCapital}
+                updateValue={(value) =>
+                  updateProfile({ availableCapital: value })
+                }
+              />
+              <NumberField
+                label="Down payment"
+                min={0}
+                step={25000}
+                value={profile.downPaymentBudget}
+                updateValue={(value) =>
+                  updateProfile({ downPaymentBudget: value })
+                }
+              />
+              <SelectField
+                label="Goal"
+                options={investmentGoals}
+                value={profile.investmentGoal}
+                updateValue={(value) => updateProfile({ investmentGoal: value })}
+              />
+              <SelectField
+                label="Risk"
+                options={riskTolerances}
+                value={profile.riskTolerance}
+                updateValue={(value) => updateProfile({ riskTolerance: value })}
+              />
+              <SelectField
+                label="Property type"
+                options={propertyTypes}
+                value={profile.preferredPropertyType}
+                updateValue={(value) =>
+                  updateProfile({ preferredPropertyType: value })
+                }
+              />
+              <SelectField
+                label="Primary residence"
+                options={["Yes", "No"]}
+                value={profile.plansPrimaryResidence ? "Yes" : "No"}
+                updateValue={(value) =>
+                  updateProfile({ plansPrimaryResidence: value === "Yes" })
+                }
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-zinc-200 p-5">
+            <button
+              className="w-full rounded-md bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
+              onClick={applySearch}
+              type="button"
+            >
+              Apply filters
+            </button>
+          </div>
         </div>
-        <p className="text-sm font-medium text-zinc-500">
-          {hasSearched
-            ? `${resultCount} matching properties`
-            : "All San Francisco candidates"}
-        </p>
-      </div>
-
-      <div className="mt-5 grid gap-4 md:grid-cols-4">
-        <TextField
-          label="ZIP code"
-          maxLength={5}
-          onChange={(value) => setZipCode(value.replace(/\D/g, ""))}
-          placeholder="e.g. 94114"
-          value={zipCode}
-        />
-        <SelectField
-          label="Search radius"
-          options={radiusOptions}
-          value={radius}
-          updateValue={setRadius}
-        />
-        <NumberField
-          label="Available capital"
-          min={0}
-          step={25000}
-          value={profile.availableCapital}
-          updateValue={(value) => updateProfile({ availableCapital: value })}
-        />
-        <NumberField
-          label="Down payment"
-          min={0}
-          step={25000}
-          value={profile.downPaymentBudget}
-          updateValue={(value) => updateProfile({ downPaymentBudget: value })}
-        />
-      </div>
-
-      <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_1fr_1fr_auto] md:items-end">
-        <SelectField
-          label="Goal"
-          options={investmentGoals}
-          value={profile.investmentGoal}
-          updateValue={(value) => updateProfile({ investmentGoal: value })}
-        />
-        <SelectField
-          label="Risk"
-          options={riskTolerances}
-          value={profile.riskTolerance}
-          updateValue={(value) => updateProfile({ riskTolerance: value })}
-        />
-        <SelectField
-          label="Property type"
-          options={propertyTypes}
-          value={profile.preferredPropertyType}
-          updateValue={(value) =>
-            updateProfile({ preferredPropertyType: value })
-          }
-        />
-        <SelectField
-          label="Primary residence"
-          options={["Yes", "No"]}
-          value={profile.plansPrimaryResidence ? "Yes" : "No"}
-          updateValue={(value) =>
-            updateProfile({ plansPrimaryResidence: value === "Yes" })
-          }
-        />
-        <button
-          className="rounded-md bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800"
-          onClick={applySearch}
-          type="button"
-        >
-          Search
-        </button>
-      </div>
-    </section>
+      </aside>
+    </>
   );
 }
 
