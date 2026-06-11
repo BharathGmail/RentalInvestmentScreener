@@ -18,7 +18,7 @@ This project is scoped to a San Francisco launch market and a prototype recommen
 - Regulatory intelligence: compliance status and caution flags in `src/features/screening/metrics.ts`.
 - AI-powered matching: weighted recommendation scoring in `recommendProperties`.
 - Personalized investor profile: client-side controls in `src/features/recommendations/propvest-dashboard.tsx`.
-- Figma wireframe intake: the masthead uses a cropped wireframe hero asset, while filters and tabs are implemented as real UI controls.
+- Figma wireframe intake: the masthead follows the wireframe photo-strip style with editable UI text, while filters and tabs are implemented as real controls.
 
 ## Deferred Production Work
 

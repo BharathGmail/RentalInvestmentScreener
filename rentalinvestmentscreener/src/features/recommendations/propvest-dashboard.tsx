@@ -43,6 +43,11 @@ const propertyTypes: PreferredPropertyType[] = [
   "Multi-unit",
 ];
 const radiusOptions = ["All SF", "1 mile", "3 miles", "5 miles"];
+const heroImages = [
+  "/listing-images/listing_16.png",
+  "/listing-images/listing_10.png",
+  "/listing-images/listing_04.png",
+];
 
 const complianceStyles: Record<ComplianceStatus, string> = {
   Blocked: "bg-rose-50 text-rose-700 ring-rose-200",
@@ -212,20 +217,33 @@ export function PropVestDashboard() {
 function HeroMasthead() {
   return (
     <section
-      aria-label="San Francisco Property Search"
+      aria-label="Property Search"
       className="relative overflow-hidden rounded-lg border border-zinc-200 bg-zinc-950 shadow-sm"
       id="search"
     >
-      <Image
-        alt=""
-        className="h-44 w-full object-cover object-center sm:h-56 lg:h-64"
-        height={384}
-        priority
-        sizes="(max-width: 1280px) 100vw, 1152px"
-        src="/sf-property-search-hero.png"
-        width={2560}
-      />
-      <h1 className="sr-only">San Francisco Property Search</h1>
+      <div className="absolute inset-0 grid grid-cols-3">
+        {heroImages.map((imageUrl) => (
+          <div className="relative min-w-0" key={imageUrl}>
+            <Image
+              alt=""
+              className="object-cover"
+              fill
+              priority
+              sizes="(max-width: 768px) 34vw, 384px"
+              src={imageUrl}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="absolute inset-0 bg-zinc-950/45" />
+      <div className="relative flex h-44 flex-col items-center justify-center px-5 text-center text-white sm:h-56 lg:h-64">
+        <h1 className="text-4xl font-semibold leading-tight tracking-normal sm:text-5xl">
+          Property Search
+        </h1>
+        <p className="mt-3 text-base font-medium leading-6 text-white/85 sm:text-lg">
+          Buy your next home in the Bay Area
+        </p>
+      </div>
     </section>
   );
 }
