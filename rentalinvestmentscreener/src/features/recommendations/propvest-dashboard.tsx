@@ -43,11 +43,6 @@ const propertyTypes: PreferredPropertyType[] = [
   "Multi-unit",
 ];
 const radiusOptions = ["All SF", "1 mile", "3 miles", "5 miles"];
-const heroImages = [
-  "/listing-images/listing_16.png",
-  "/listing-images/listing_04.png",
-  "/listing-images/listing_10.png",
-];
 
 const complianceStyles: Record<ComplianceStatus, string> = {
   Blocked: "bg-rose-50 text-rose-700 ring-rose-200",
@@ -222,36 +217,19 @@ export function PropVestDashboard() {
 function HeroMasthead() {
   return (
     <section
-      className="relative isolate overflow-hidden rounded-lg border border-zinc-200 bg-zinc-950"
+      className="rounded-lg border border-zinc-200 bg-white px-5 py-6 shadow-sm sm:px-6"
       id="search"
     >
-      <div className="absolute inset-0 grid grid-cols-3 opacity-70">
-        {heroImages.map((imageUrl) => (
-          <div className="relative min-w-0" key={imageUrl}>
-            <Image
-              alt=""
-              className="object-cover"
-              fill
-              priority
-              sizes="(max-width: 768px) 34vw, 384px"
-              src={imageUrl}
-            />
-          </div>
-        ))}
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/85 to-zinc-950/55" />
-      <div className="relative flex min-h-72 flex-col justify-end px-5 py-7 text-white sm:px-7 md:min-h-80">
-        <p className="text-xs font-semibold uppercase tracking-normal text-white/70 sm:text-sm">
-          PropVest AI | San Francisco
-        </p>
-        <h1 className="mt-2 max-w-2xl text-3xl font-semibold leading-tight tracking-normal sm:text-4xl">
-          A cleaner way to evaluate SF investment properties.
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base">
-          Search, tune your investor profile, compare recommendations, and
-          inspect compliance risk without leaving the page.
-        </p>
-      </div>
+      <p className="text-xs font-semibold uppercase tracking-normal text-zinc-500">
+        PropVest AI | San Francisco
+      </p>
+      <h1 className="mt-2 max-w-3xl text-2xl font-semibold leading-tight tracking-normal text-zinc-950 sm:text-3xl">
+        Evaluate SF investment properties with clear recommendations.
+      </h1>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600 sm:text-base">
+        Open filters when you need to refine investor assumptions, then compare
+        results and compliance details without visual clutter.
+      </p>
     </section>
   );
 }
